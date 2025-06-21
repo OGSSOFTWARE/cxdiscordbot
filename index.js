@@ -157,7 +157,7 @@ __**How to Claim Your Customer Role:**__
 • The bot will automatically grant you the role if your invoice is **completed.**
 `)
       .setColor('#FF006A')
-      .setImage('https://media.discordapp.net/attachments/1376632471260762112/1376632582149640212/G23FX56.gif')
+      .setImage('https://media.discordapp.net/attachments/1376632471260762112/1386038563212234893/IMG_4172.gif?ex=68584080&is=6856ef00&hm=0bea7264c461cebcea453b096a0516edc9ef1dcf580e55ad3b6f23d7f830a74e&=')
       .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1386040972512592083/image.png?ex=685842bf&is=6856f13f&hm=70fdf4e2793b4416551739b34df7f6b9cc68480bd25ff12613de232317f6e9ae&=&format=webp&quality=lossless&width=968&height=968')
 
     const button = new ButtonBuilder()
