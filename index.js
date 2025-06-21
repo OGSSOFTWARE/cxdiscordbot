@@ -128,14 +128,12 @@ client.on('ready', async () => {
 Unlock a world of exclusive benefits by redeeming your Invoice ID today! As a verified client, you’ll gain immediate access to a range of premium features designed to enhance your experience, including:
 
 - Exclusive Giveaways
-
 - Private Chat Channels
-
 - Priority Support & Features
 `)
     .setColor('#FF006A')
     .setImage('https://media.discordapp.net/attachments/1376632471260762112/1386038563212234893/IMG_4172.gif?ex=68584080&is=6856ef00&hm=0bea7264c461cebcea453b096a0516edc9ef1dcf580e55ad3b6f23d7f830a74e&=')
-    .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1386039146392326225/image.png?ex=6858410b&is=6856ef8b&hm=1ba52266e7809dfa41006aa4cb28da3b86eb8bc241eea99f5f3999cf4283f29c&=&format=webp&quality=lossless&width=968&height=968')
+    .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1386040972512592083/image.png?ex=685842bf&is=6856f13f&hm=70fdf4e2793b4416551739b34df7f6b9cc68480bd25ff12613de232317f6e9ae&=&format=webp&quality=lossless&width=968&height=968')
 
   const button = new ButtonBuilder()
     .setCustomId('redeem_button')
