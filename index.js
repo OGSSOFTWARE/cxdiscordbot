@@ -107,6 +107,24 @@ client.on('interactionCreate', async interaction => {
         content: '✅ Invoice verified. You have been given the Client role!',
         ephemeral: true
       });
+
+      // Logging to log channel
+      const logChannel = await client.channels.fetch(process.env.REDEEM_LOG_CHANNEL_ID).catch(console.error);
+      if (logChannel && logChannel.isTextBased()) {
+        const logEmbed = new EmbedBuilder()
+          .setTitle('📥 Invoice Redeemed')
+          .addFields(
+            { name: 'User', value: `${interaction.user.tag} (${interaction.user.id})`, inline: true },
+            { name: 'Invoice ID', value: invoiceId, inline: true },
+            { name: 'Status', value: invoice.status, inline: true }
+          )
+          .setColor('#00FF00')
+          .setTimestamp()
+          .setFooter({ text: 'OGSWare | Invoice Log' });
+
+        logChannel.send({ embeds: [logEmbed] }).catch(console.error);
+      }
+
     } catch (err) {
       console.error('❌ Error verifying invoice:', err);
       await interaction.reply({
@@ -118,9 +136,14 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('ready', async () => {
-  const guild = await client.guilds.fetch(process.env.GUILD_ID);
-  const channel = guild.channels.cache.get(process.env.REDEEM_CHANNEL_ID);
-  if (!channel) return console.log('❌ Redeem channel not found.');
+  try {
+    console.log('🟢 Ready event triggered.');
+    const guild = await client.guilds.fetch(process.env.GUILD_ID);
+    const channel = await guild.channels.fetch(process.env.REDEEM_CHANNEL_ID).catch(() => null);
+
+    if (!channel || !channel.isTextBased()) {
+      return console.log('❌ Redeem channel not found or not text-based.');
+    }
 
   const embed = new EmbedBuilder()
     .setTitle('Claim Your Customer Role')
