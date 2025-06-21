@@ -123,27 +123,19 @@ client.on('ready', async () => {
   if (!channel) return console.log('❌ Redeem channel not found.');
 
   const embed = new EmbedBuilder()
-    .setTitle('Get Premium Access - Reedem Youre Purchase')
-    .setURL('https://ogsware.com/')
+    .setTitle('Reedem Invoice ID')
     .setDescription(`
-Redeem your **Invoice ID** to instantly receive the Client Role. Unlock access to exclusive giveaways, private chat channels, and other premium features – fast, secure, and hassle-free.
+Unlock a world of exclusive benefits by redeeming your Invoice ID today! As a verified client, you’ll gain immediate access to a range of premium features designed to enhance your experience, including:
 
-<:diamond_yellow:1381704004991586405> **Premium Client Benefits**
-<:YellowDot:1381703990781415424> **Exclusive Giveaways**- Entry to high-value prize events  
-<:YellowDot:1381703990781415424> **Private Chat Access**- Join members-only discussions  
-<:YellowDot:1381703990781415424> **More Features**- Enjoy ongoing client-only upgrades
+- Exclusive Giveaways
 
-<:diamond_yellow:1381704004991586405> **Quick & Secure Redemption**
-<:YellowDot:1381703990781415424> **Instant Assignment**- Applied right after validation  
-<:YellowDot:1381703990781415424> **Simple Process**- Just enter your Invoice ID  
-<:YellowDot:1381703990781415424> **Trusted System**- Secure and reliable role delivery
+- Private Chat Channels
+
+- Priority Support & Features
 `)
-    .setColor('#FFFF00')
-    .setImage('https://media.discordapp.net/attachments/1376632471260762112/1376632582149640212/G23FX56.gif?ex=684fbdc0&is=684e6c40&hm=035406d63e33600ac39ef807d29ab0a6ace81e63acb0c6394fa88fd396a72a17&=')
-    .setFooter({
-      text: 'OGSWare | © 2025 Copyright. All Rights Reserved.',
-      iconURL: 'https://media.discordapp.net/attachments/1376632471260762112/1376632582590173315/IMG_3328.gif?ex=684fbdc0&is=684e6c40&hm=6aa0cbf9e2bd899970c2367c674550803be49ccd096b0f6e02964a428cc31f2b&=&width=864&height=864'
-    });
+    .setColor('#FF006A')
+    .setImage('https://media.discordapp.net/attachments/1376632471260762112/1386038563212234893/IMG_4172.gif?ex=68584080&is=6856ef00&hm=0bea7264c461cebcea453b096a0516edc9ef1dcf580e55ad3b6f23d7f830a74e&=')
+    .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1386039146392326225/image.png?ex=6858410b&is=6856ef8b&hm=1ba52266e7809dfa41006aa4cb28da3b86eb8bc241eea99f5f3999cf4283f29c&=&format=webp&quality=lossless&width=968&height=968')
 
   const button = new ButtonBuilder()
     .setCustomId('redeem_button')
