@@ -123,10 +123,8 @@ client.on('ready', async () => {
   if (!channel) return console.log('❌ Redeem channel not found.');
 
   const embed = new EmbedBuilder()
-    .setTitle('Reedem Invoice ID')
+    .setTitle('Claim Your Customer Role')
     .setDescription(`
-🎉 Claim Your Customer Role
-
 If you have purchased through **CoreX**, please use our bot to claim the Customer role.
 
 __**How to Claim Your Customer Role:**__
