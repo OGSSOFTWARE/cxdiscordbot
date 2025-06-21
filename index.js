@@ -125,11 +125,14 @@ client.on('ready', async () => {
   const embed = new EmbedBuilder()
     .setTitle('Reedem Invoice ID')
     .setDescription(`
-Unlock a world of exclusive benefits by redeeming your Invoice ID today! As a verified client, you’ll gain immediate access to a range of premium features designed to enhance your experience, including:
+🎉 Claim Your Customer Role
 
-- Exclusive Giveaways
-- Private Chat Channels
-- Priority Support & Features
+If you have purchased through **CoreX**, please use our bot to claim the Customer role.
+
+__**How to Claim Your Customer Role:**__
+• Click the **Claim Role** button below
+• Enter your **Invoice ID** when prompted
+• The bot will automatically grant you the role if your invoice is **completed.**
 `)
     .setColor('#FF006A')
     .setImage('https://media.discordapp.net/attachments/1376632471260762112/1386038563212234893/IMG_4172.gif?ex=68584080&is=6856ef00&hm=0bea7264c461cebcea453b096a0516edc9ef1dcf580e55ad3b6f23d7f830a74e&=')
@@ -137,7 +140,7 @@ Unlock a world of exclusive benefits by redeeming your Invoice ID today! As a ve
 
   const button = new ButtonBuilder()
     .setCustomId('redeem_button')
-    .setLabel('Redeem Invoice ID')
+    .setLabel('Claim Role')
     .setStyle(ButtonStyle.Secondary);
 
   const row = new ActionRowBuilder().addComponents(button);
