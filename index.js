@@ -17,6 +17,14 @@ const { fetch } = require('undici');
 
 const USED_INVOICES_PATH = path.join(__dirname, 'used_invoices.json');
 
+// Validate essential environment variables at startup
+['SHOP_ID', 'SELLAUTH_API_KEY', 'DISCORD_TOKEN', 'CLIENT_ROLE_ID', 'GUILD_ID', 'REDEEM_CHANNEL_ID', 'REDEEM_LOG_CHANNEL_ID'].forEach(env => {
+  if (!process.env[env]) {
+    console.error(`❌ Missing required environment variable: ${env}`);
+    process.exit(1);
+  }
+});
+
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages],
   partials: [Partials.Message, Partials.Channel, Partials.GuildMember]
@@ -56,28 +64,37 @@ client.on('interactionCreate', async interaction => {
   }
 
   if (interaction.isModalSubmit() && interaction.customId === 'redeem_modal') {
-    const invoiceId = interaction.fields.getTextInputValue('invoice_id');
+    const invoiceId = interaction.fields.getTextInputValue('invoice_id').trim();
     console.log(`🔍 User entered invoice ID: ${invoiceId}`);
 
     const used = getUsedInvoices();
     if (used.includes(invoiceId)) {
       return await interaction.reply({
         content: '⚠️ This invoice has already been redeemed.',
-        flags: 64 // replacing ephemeral: true
+        flags: 64
       });
     }
 
     try {
       const url = `https://api.sellauth.com/v1/shops/${process.env.SHOP_ID}/invoices`;
-      if (!url || typeof url !== 'string') throw new Error('Invalid SellAuth URL');
+      if (!url || typeof url !== 'string' || !url.startsWith('http')) {
+        throw new Error(`Invalid SellAuth URL: ${url}`);
+      }
 
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${process.env.SELLAUTH_API_KEY}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+      const headers = {
+        'Authorization': `Bearer ${process.env.SELLAUTH_API_KEY}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      Object.entries(headers).forEach(([k, v]) => {
+        if (typeof v !== 'string' || v.trim() === '') {
+          throw new Error(`Invalid header value for ${k}: ${v}`);
         }
       });
+
+      console.log('🔗 Fetching invoices with URL:', url);
+      const response = await fetch(url, { headers });
 
       const raw = await response.text();
       console.log('📦 Raw SellAuth response:', raw);
@@ -87,7 +104,7 @@ client.on('interactionCreate', async interaction => {
       }
 
       const data = JSON.parse(raw);
-      const invoice = data.data.find(inv => inv.unique_id === invoiceId.trim());
+      const invoice = data.data.find(inv => inv.unique_id === invoiceId);
 
       if (!invoice) {
         return await interaction.reply({ content: '❌ Invoice not found.', flags: 64 });
@@ -178,3 +195,4 @@ __**How to Claim Your Customer Role:**__
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
