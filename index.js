@@ -63,12 +63,14 @@ client.on('interactionCreate', async interaction => {
     if (used.includes(invoiceId)) {
       return await interaction.reply({
         content: '⚠️ This invoice has already been redeemed.',
-        ephemeral: true
+        flags: 64 // replacing ephemeral: true
       });
     }
 
     try {
       const url = `https://api.sellauth.com/v1/shops/${process.env.SHOP_ID}/invoices`;
+      if (!url || typeof url !== 'string') throw new Error('Invalid SellAuth URL');
+
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${process.env.SELLAUTH_API_KEY}`,
@@ -88,16 +90,16 @@ client.on('interactionCreate', async interaction => {
       const invoice = data.data.find(inv => inv.unique_id === invoiceId.trim());
 
       if (!invoice) {
-        return await interaction.reply({ content: '❌ Invoice not found.', ephemeral: true });
+        return await interaction.reply({ content: '❌ Invoice not found.', flags: 64 });
       }
 
       if (invoice.status !== 'completed') {
-        return await interaction.reply({ content: '⏳ This invoice is not completed yet.', ephemeral: true });
+        return await interaction.reply({ content: '⏳ This invoice is not completed yet.', flags: 64 });
       }
 
       const role = interaction.guild.roles.cache.get(process.env.CLIENT_ROLE_ID);
       if (!role) {
-        return await interaction.reply({ content: '⚠️ "Client" role not found.', ephemeral: true });
+        return await interaction.reply({ content: '⚠️ "Client" role not found.', flags: 64 });
       }
 
       await interaction.member.roles.add(role);
@@ -105,7 +107,7 @@ client.on('interactionCreate', async interaction => {
 
       await interaction.reply({
         content: '✅ Invoice verified. You have been given the Client role!',
-        ephemeral: true
+        flags: 64
       });
 
       // Logging to log channel
@@ -129,7 +131,7 @@ client.on('interactionCreate', async interaction => {
       console.error('❌ Error verifying invoice:', err);
       await interaction.reply({
         content: '❌ An error occurred while checking your invoice. Please try again later.',
-        ephemeral: true
+        flags: 64
       });
     }
   }
@@ -157,8 +159,8 @@ __**How to Claim Your Customer Role:**__
 • The bot will automatically grant you the role if your invoice is **completed.**
 `)
       .setColor('#FF006A')
-      .setImage('https://media.discordapp.net/attachments/1376632471260762112/1386038563212234893/IMG_4172.gif?ex=68584080&is=6856ef00&hm=0bea7264c461cebcea453b096a0516edc9ef1dcf580e55ad3b6f23d7f830a74e&=')
-      .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1386040972512592083/image.png?ex=685842bf&is=6856f13f&hm=70fdf4e2793b4416551739b34df7f6b9cc68480bd25ff12613de232317f6e9ae&=&format=webp&quality=lossless&width=968&height=968')
+      .setImage('https://media.discordapp.net/attachments/1376632471260762112/1386038563212234893/IMG_4172.gif')
+      .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1386040972512592083/image.png');
 
     const button = new ButtonBuilder()
       .setCustomId('redeem_button')
@@ -176,4 +178,3 @@ __**How to Claim Your Customer Role:**__
 });
 
 client.login(process.env.DISCORD_TOKEN);
-
