@@ -1,6 +1,5 @@
 require('dotenv').config();
-const fs = require('fs');
-const path = require('path');
+const { Pool } = require('pg');
 const {
   Client,
   GatewayIntentBits,
@@ -15,36 +14,72 @@ const {
 } = require('discord.js');
 const { fetch } = require('undici');
 
-const USED_INVOICES_PATH = path.join(__dirname, 'used_invoices.json');
+// PostgreSQL Pool
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-// Validate essential environment variables at startup
-['SHOP_ID', 'SELLAUTH_API_KEY', 'DISCORD_TOKEN', 'CLIENT_ROLE_ID', 'GUILD_ID', 'REDEEM_CHANNEL_ID', 'REDEEM_LOG_CHANNEL_ID'].forEach(env => {
-  if (!process.env[env]) {
-    console.error(`❌ Missing required environment variable: ${env}`);
-    process.exit(1);
-  }
-});
-
+// Discord Bot Client
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages],
   partials: [Partials.Message, Partials.Channel, Partials.GuildMember]
 });
 
-client.once('ready', () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+// Bot is ready
+client.once('ready', async () => {
+  try {
+    console.log(`✅ Logged in as ${client.user.tag}`);
+
+    // Set bot status
+    client.user.setPresence({
+      activities: [{ name: '⭐ ogsware.com', type: 3 }], // Watching ogsware.com
+      status: 'online'
+    });
+
+    const guild = await client.guilds.fetch(process.env.GUILD_ID);
+    const channel = await guild.channels.fetch(process.env.REDEEM_CHANNEL_ID).catch(() => null);
+
+    if (!channel || !channel.isTextBased()) {
+      return console.log('❌ Redeem channel not found or not text-based.');
+    }
+
+ const embed = new EmbedBuilder()
+      .setTitle('Claim Your Customer Role')
+      .setDescription(`
+If you have purchased through **CoreX**, please use our bot to claim the Customer role.
+
+__**How to Claim Your Customer Role:**__
+• Click the **Claim Role** button below
+• Enter your **Invoice ID** when prompted
+• The bot will automatically grant you the role if your invoice is **completed.**
+`)
+      .setColor('#FF006A')
+      .setImage('https://media.discordapp.net/attachments/1376632471260762112/1386038563212234893/IMG_4172.gif')
+      .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1386040972512592083/image.png');
+
+    const button = new ButtonBuilder()
+      .setCustomId('redeem_button')
+      .setLabel('📮 Redeem Invoice ID')
+      .setStyle(ButtonStyle.Secondary);
+
+    const row = new ActionRowBuilder().addComponents(button);
+
+    await channel.send({ embeds: [embed], components: [row] });
+    console.log('✅ Redeem embed sent.');
+  } catch (err) {
+    console.error('❌ Error in ready event:', err);
+  }
 });
 
-function getUsedInvoices() {
-  if (!fs.existsSync(USED_INVOICES_PATH)) return [];
-  return JSON.parse(fs.readFileSync(USED_INVOICES_PATH));
+// Database helpers
+async function isInvoiceUsed(invoiceId) {
+  const res = await pool.query('SELECT 1 FROM used_invoices WHERE invoice_id = $1', [invoiceId]);
+  return res.rowCount > 0;
 }
 
-function saveUsedInvoice(id) {
-  const used = getUsedInvoices();
-  used.push(id);
-  fs.writeFileSync(USED_INVOICES_PATH, JSON.stringify(used, null, 2));
+async function saveUsedInvoice(invoiceId) {
+  await pool.query('INSERT INTO used_invoices (invoice_id) VALUES ($1)', [invoiceId]);
 }
 
+// Handle interaction
 client.on('interactionCreate', async interaction => {
   if (interaction.isButton() && interaction.customId === 'redeem_button') {
     const modal = new ModalBuilder()
@@ -67,34 +102,22 @@ client.on('interactionCreate', async interaction => {
     const invoiceId = interaction.fields.getTextInputValue('invoice_id').trim();
     console.log(`🔍 User entered invoice ID: ${invoiceId}`);
 
-    const used = getUsedInvoices();
-    if (used.includes(invoiceId)) {
+    if (await isInvoiceUsed(invoiceId)) {
       return await interaction.reply({
         content: '⚠️ This invoice has already been redeemed.',
-        flags: 64
+        ephemeral: true
       });
     }
 
     try {
       const url = `https://api.sellauth.com/v1/shops/${process.env.SHOP_ID}/invoices`;
-      if (!url || typeof url !== 'string' || !url.startsWith('http')) {
-        throw new Error(`Invalid SellAuth URL: ${url}`);
-      }
-
-      const headers = {
-        'Authorization': `Bearer ${process.env.SELLAUTH_API_KEY}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      };
-
-      Object.entries(headers).forEach(([k, v]) => {
-        if (typeof v !== 'string' || v.trim() === '') {
-          throw new Error(`Invalid header value for ${k}: ${v}`);
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${process.env.SELLAUTH_API_KEY}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
       });
-
-      console.log('🔗 Fetching invoices with URL:', url);
-      const response = await fetch(url, { headers });
 
       const raw = await response.text();
       console.log('📦 Raw SellAuth response:', raw);
@@ -107,39 +130,41 @@ client.on('interactionCreate', async interaction => {
       const invoice = data.data.find(inv => inv.unique_id === invoiceId);
 
       if (!invoice) {
-        return await interaction.reply({ content: '❌ Invoice not found.', flags: 64 });
+        return await interaction.reply({ content: '❌ Invoice not found.', ephemeral: true });
       }
 
       if (invoice.status !== 'completed') {
-        return await interaction.reply({ content: '⏳ This invoice is not completed yet.', flags: 64 });
+        return await interaction.reply({ content: '⏳ This invoice is not completed yet.', ephemeral: true });
       }
 
       const role = interaction.guild.roles.cache.get(process.env.CLIENT_ROLE_ID);
       if (!role) {
-        return await interaction.reply({ content: '⚠️ "Client" role not found.', flags: 64 });
+        return await interaction.reply({ content: '⚠️ "Client" role not found.', ephemeral: true });
       }
 
       await interaction.member.roles.add(role);
-      saveUsedInvoice(invoiceId);
+      await saveUsedInvoice(invoiceId);
 
       await interaction.reply({
-        content: '✅ Invoice verified. You have been given the Client role!',
-        flags: 64
+        content: '✅ Invoice ID successfully reedemed. You have been given the Client role!',
+        ephemeral: true
       });
 
-      // Logging to log channel
       const logChannel = await client.channels.fetch(process.env.REDEEM_LOG_CHANNEL_ID).catch(console.error);
       if (logChannel && logChannel.isTextBased()) {
         const logEmbed = new EmbedBuilder()
-          .setTitle('📥 Invoice Redeemed')
+          .setTitle('Invoice ID Redeemed')
           .addFields(
             { name: 'User', value: `${interaction.user.tag} (${interaction.user.id})`, inline: true },
             { name: 'Invoice ID', value: invoiceId, inline: true },
             { name: 'Status', value: invoice.status, inline: true }
           )
-          .setColor('#00FF00')
+          .setColor('#FFFF00')
           .setTimestamp()
-          .setFooter({ text: 'OGSWare | Invoice Log' });
+          .setFooter({
+        text: 'OGSWare | © 2025 Copyright. All Rights Reserved.',
+        iconURL: 'https://media.discordapp.net/attachments/1376632471260762112/1376632582590173315/IMG_3328.gif'
+      });
 
         logChannel.send({ embeds: [logEmbed] }).catch(console.error);
       }
@@ -148,51 +173,11 @@ client.on('interactionCreate', async interaction => {
       console.error('❌ Error verifying invoice:', err);
       await interaction.reply({
         content: '❌ An error occurred while checking your invoice. Please try again later.',
-        flags: 64
+        ephemeral: true
       });
     }
   }
 });
 
-// Embed & button message sent when bot becomes ready
-client.on('ready', async () => {
-  try {
-    console.log('🟢 Ready event triggered.');
-    const guild = await client.guilds.fetch(process.env.GUILD_ID);
-    const channel = await guild.channels.fetch(process.env.REDEEM_CHANNEL_ID).catch(() => null);
-
-    if (!channel || !channel.isTextBased()) {
-      return console.log('❌ Redeem channel not found or not text-based.');
-    }
-
-    const embed = new EmbedBuilder()
-      .setTitle('Claim Your Customer Role')
-      .setDescription(`
-If you have purchased through **CoreX**, please use our bot to claim the Customer role.
-
-__**How to Claim Your Customer Role:**__
-• Click the **Claim Role** button below
-• Enter your **Invoice ID** when prompted
-• The bot will automatically grant you the role if your invoice is **completed.**
-`)
-      .setColor('#FF006A')
-      .setImage('https://media.discordapp.net/attachments/1376632471260762112/1386038563212234893/IMG_4172.gif')
-      .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1386040972512592083/image.png');
-
-    const button = new ButtonBuilder()
-      .setCustomId('redeem_button')
-      .setLabel('Claim Role')
-      .setStyle(ButtonStyle.Secondary);
-
-    const row = new ActionRowBuilder().addComponents(button);
-
-    await channel.send({ embeds: [embed], components: [row] });
-    console.log('✅ Redeem embed sent.');
-
-  } catch (err) {
-    console.error('❌ Error in ready event:', err);
-  }
-});
-
+// Log in bot
 client.login(process.env.DISCORD_TOKEN);
-
