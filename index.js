@@ -30,7 +30,7 @@ client.once('ready', async () => {
 
     // Set bot status
     client.user.setPresence({
-      activities: [{ name: '⭐ ogsware.com', type: 3 }], // Watching ogsware.com
+      activities: [{ name: '⭐ discord.gg/corex', type: 3 }], // Watching ogsware.com
       status: 'online'
     });
 
