@@ -51,9 +51,9 @@ __**How to Claim Your Customer Role:**__
 • Enter your **Invoice ID** when prompted
 • The bot will automatically grant you the role if your invoice is **completed.**
 `)
-      .setColor('#05FAFA')
-      .setImage('https://media.discordapp.net/attachments/1391172550934921350/1394857139759091813/profile-banner.gif?ex=687cf2b1&is=687ba131&hm=6c6433b10eea13dbe7068bfebe6bf8522d1d804be9b8277146c345cbc33879cf&=')
-      .setThumbnail('https://media.discordapp.net/attachments/1391172550934921350/1394857139364823050/LOGO.png?ex=687cf2b1&is=687ba131&hm=9f01743e35ee315a589727110f94855235d7483d2f9122eddeb4a869bfff4573&=&format=webp&quality=lossless&width=864&height=864');
+      .setColor('#323339')
+      .setImage('https://media.discordapp.net/attachments/1376632471260762112/1401344780889358376/PROFILE_BANNER.png?ex=688fef87&is=688e9e07&hm=335209e4d9e80cf896606b2d32fa06839628f270ca45dd8baadd78317de931be&=&format=webp&quality=lossless&width=550&height=194')
+      .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1401344713423978597/LOGO.png?ex=688fef77&is=688e9df7&hm=c0bb6dd1c7c1bb3db134beded79ec2629211297afea61cb51582e4ca676248ae&=&format=webp&quality=lossless&width=960&height=960');
 
     const button = new ButtonBuilder()
       .setCustomId('redeem_button')
@@ -181,3 +181,4 @@ client.on('interactionCreate', async interaction => {
 
 // Log in bot
 client.login(process.env.DISCORD_TOKEN);
+
