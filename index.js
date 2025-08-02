@@ -51,7 +51,7 @@ __**How to Claim Your Customer Role:**__
 • Enter your **Invoice ID** when prompted
 • The bot will automatically grant you the role if your invoice is **completed.**
 `)
-      .setColor('#323339')
+      .setColor('#6e6e6e')
       .setImage('https://media.discordapp.net/attachments/1376632471260762112/1401344780889358376/PROFILE_BANNER.png?ex=688fef87&is=688e9e07&hm=335209e4d9e80cf896606b2d32fa06839628f270ca45dd8baadd78317de931be&=&format=webp&quality=lossless&width=550&height=194')
       .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1401344713423978597/LOGO.png?ex=688fef77&is=688e9df7&hm=c0bb6dd1c7c1bb3db134beded79ec2629211297afea61cb51582e4ca676248ae&=&format=webp&quality=lossless&width=960&height=960');
 
@@ -159,11 +159,8 @@ client.on('interactionCreate', async interaction => {
             { name: 'Invoice ID', value: invoiceId, inline: true },
             { name: 'Status', value: invoice.status, inline: true }
           )
-          .setColor('#FFFF00')
+          .setColor('#6e6e6e')
           .setTimestamp()
-          .setFooter({
-        text: 'OGSWare | © 2025 Copyright. All Rights Reserved.',
-        iconURL: 'https://media.discordapp.net/attachments/1376632471260762112/1376632582590173315/IMG_3328.gif'
       });
 
         logChannel.send({ embeds: [logEmbed] }).catch(console.error);
@@ -181,4 +178,5 @@ client.on('interactionCreate', async interaction => {
 
 // Log in bot
 client.login(process.env.DISCORD_TOKEN);
+
 
