@@ -160,8 +160,7 @@ client.on('interactionCreate', async interaction => {
             { name: 'Status', value: invoice.status, inline: true }
           )
           .setColor('#6e6e6e')
-          .setTimestamp()
-      });
+          .setTimestamp();
 
         logChannel.send({ embeds: [logEmbed] }).catch(console.error);
       }
@@ -178,5 +177,6 @@ client.on('interactionCreate', async interaction => {
 
 // Log in bot
 client.login(process.env.DISCORD_TOKEN);
+
 
 
