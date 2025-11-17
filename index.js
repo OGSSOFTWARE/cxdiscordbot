@@ -30,7 +30,7 @@ client.once('ready', async () => {
 
     // Set bot status
     client.user.setPresence({
-      activities: [{ name: '⭐ discord.gg/corex', type: 3 }], // Watching ogsware.com
+      activities: [{ name: '⭐ discord.gg/ogsware', type: 3 }], // Watching ogsware.com
       status: 'online'
     });
 
@@ -41,20 +41,29 @@ client.once('ready', async () => {
       return console.log('❌ Redeem channel not found or not text-based.');
     }
 
- const embed = new EmbedBuilder()
-      .setTitle('Claim Your Customer Role')
+    const embed = new EmbedBuilder()
+      .setTitle('Get Premium Access - Redeem Your Purchase')
+      .setURL('https://ogsware.com/')
       .setDescription(`
-If you have purchased through **CoreX**, please use our bot to claim the Customer role.
+Redeem your **Invoice ID** to instantly receive the Client Role. Unlock access to exclusive giveaways, private chat channels, and other premium features – fast, secure, and hassle-free.
 
-__**How to Claim Your Customer Role:**__
-• Click the **Claim Role** button below
-• Enter your **Invoice ID** when prompted
-• The bot will automatically grant you the role if your invoice is **completed.**
+<:diamond_yellow:1381704004991586405> __**Premium Client Benefits**__
+<:YellowDot:1381703990781415424> **Exclusive Giveaways** - Entry to high-value prize events  
+<:YellowDot:1381703990781415424> **Private Chat Access** - Join members-only discussions  
+<:YellowDot:1381703990781415424> **More Features** - Enjoy ongoing client-only upgrades
+
+<:diamond_yellow:1381704004991586405> __**Quick & Secure Redemption**__
+<:YellowDot:1381703990781415424> **Instant Assignment** - Applied right after validation  
+<:YellowDot:1381703990781415424> **Simple Process** - Just enter your Invoice ID  
+<:YellowDot:1381703990781415424> **Trusted System** - Secure and reliable role delivery
 `)
-      .setColor('#6e6e6e')
-      .setImage('https://media.discordapp.net/attachments/1376632471260762112/1401344780889358376/PROFILE_BANNER.png?ex=688fef87&is=688e9e07&hm=335209e4d9e80cf896606b2d32fa06839628f270ca45dd8baadd78317de931be&=&format=webp&quality=lossless&width=550&height=194')
-      .setThumbnail('https://media.discordapp.net/attachments/1376632471260762112/1401344713423978597/LOGO.png?ex=688fef77&is=688e9df7&hm=c0bb6dd1c7c1bb3db134beded79ec2629211297afea61cb51582e4ca676248ae&=&format=webp&quality=lossless&width=960&height=960');
-
+      .setColor('#FFFF00')
+      .setImage('https://media.discordapp.net/attachments/1376632471260762112/1376632582149640212/G23FX56.gif')
+      .setFooter({
+        text: 'OGSWare | © 2025 Copyright. All Rights Reserved.',
+        iconURL: 'https://media.discordapp.net/attachments/1376632471260762112/1376632582590173315/IMG_3328.gif'
+      });
+    
     const button = new ButtonBuilder()
       .setCustomId('redeem_button')
       .setLabel('📮 Redeem Invoice ID')
@@ -177,6 +186,7 @@ client.on('interactionCreate', async interaction => {
 
 // Log in bot
 client.login(process.env.DISCORD_TOKEN);
+
 
 
 
